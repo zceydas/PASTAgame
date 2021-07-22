@@ -4,7 +4,7 @@ namestr = st.name;
 directory=fileparts(which([namestr, '.m']));
 cd(directory)
 
-trialdeadline=3; % in seconds (for idea generation)
+trialdeadline=60; % in seconds (for idea generation)
 
 PsychDefaultSetup(2);
 Screen('Preference', 'SkipSyncTests', 1);
