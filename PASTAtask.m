@@ -4,7 +4,8 @@ namestr = st.name;
 directory=fileparts(which([namestr, '.m']));
 cd(directory)
 
-trialdeadline=60; % in seconds (for idea generation)
+trialdeadline=3; % in seconds (for idea generation)
+
 PsychDefaultSetup(2);
 Screen('Preference', 'SkipSyncTests', 1);
 %PsychDebugWindowConfiguration(0,0.5) % for debugging purposes
@@ -82,18 +83,19 @@ PsychPortAudio('GetAudioData', audiochannel, 10);
 Screen('TextSize', window, 30);
 PASTAInstructions(window,grey);
 
-Trialtype='Practice'; PracticeResults={};
+Trialtype='Practice'; 
 Index = find(contains(ConditionList.TrialType,Trialtype));
+Results={}; counter=1;
 for t=1:length(Index)
     Category=ConditionList.Category{Index(t)};
     Ex1=ConditionList.Example1{Index(t)};
     Ex2=ConditionList.Example2{Index(t)};
     Ex3=ConditionList.Example3{Index(t)};
     fontsize=70;
-    [Prac]=PASTAtrialstructure(trialdeadline,subjectId,window,grey,fontsize,screenYpixels,screenXpixels,audiochannel,freq,mic_image,allRects,t,Category,Ex1,Ex2,Ex3,Trialtype);
-    PracticeResults{t}=Prac;
+    [Results,counter]=PASTAtrialstructure(counter,Results,Session,trialdeadline,subjectId,window,grey,fontsize,screenYpixels,screenXpixels,audiochannel,freq,mic_image,allRects,t,Category,Ex1,Ex2,Ex3,Trialtype);
 end
-save PracticeResults PracticeResults 
+PracticeTable=cell2table(Results,'VariableNames',{'TrialNo' 'Category' 'Example1' 'Example2' 'Example3' 'ReadTime' 'RT' 'Recordtime' 'TaskType'});
+writetable(PracticeTable,['PracticeResults',num2str(Session),'_' 'subject',num2str(subjectId),'_',date,'.xlsx']);
 
 Screen('TextSize', window, 30);
 DrawFormattedText(window, sprintf('%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s', ...
@@ -102,7 +104,7 @@ DrawFormattedText(window, sprintf('%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%
     'Otherwise, press a key to start testing.'), 'center', 'center',grey,[100],[],[],[2]);
 Screen('Flip',window); KbStrokeWait;
 
-Trialtype='Test'; TestResults={};
+Trialtype='Test'; Results={}; counter=1;
 for t=1:length(sessionorder)
 
     Category=ConditionList.Category{sessionorder(t)};
@@ -110,11 +112,10 @@ for t=1:length(sessionorder)
     Ex2=ConditionList.Example2{sessionorder(t)};
     Ex3=ConditionList.Example3{sessionorder(t)};
     fontsize=70;
-    [Results]=PASTAtrialstructure(trialdeadline,subjectId,window,grey,fontsize,screenYpixels,screenXpixels,audiochannel,freq,mic_image,allRects,t,Category,Ex1,Ex2,Ex3,Trialtype);
-    TestResults{t}=Results;
-
+    [Results,counter]=PASTAtrialstructure(counter,Results,Session,trialdeadline,subjectId,window,grey,fontsize,screenYpixels,screenXpixels,audiochannel,freq,mic_image,allRects,t,Category,Ex1,Ex2,Ex3,Trialtype);
 end
-save TestResults TestResults
+TestTable=cell2table(Results,'VariableNames',{'TrialNo' 'Category' 'Example1' 'Example2' 'Example3' 'ReadTime' 'RT' 'Recordtime' 'TaskType'});
+writetable(TestTable,['TestResults',num2str(Session),'_' 'subject',num2str(subjectId),'_',date,'.xlsx']);
 
 PsychPortAudio('Close', audiochannel);
 
@@ -122,13 +123,15 @@ files = dir(['subject' num2str(subjectId) '*.wav']);
 for f=1:length(files)
     movefile(fullfile(files(f).folder,files(f).name), datafileName)
 end
-movefile('TestResults.mat',datafileName)
-movefile('PracticeResults.mat',datafileName)
+tablefiles = dir(['*_subject' num2str(subjectId) '*.xlsx']);
+for f=1:length(tablefiles)
+    movefile(fullfile(tablefiles(f).folder,tablefiles(f).name), datafileName)
+end
 
-
+Screen('TextSize', window, 30);
 DrawFormattedText(window, sprintf('%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s', ...
     'Great! You finished the game!', ...
-    'Thank you for your participation!'), 'center', 'center',fontcolor,[100],[],[],[2]);
+    'Thank you for your participation!'), 'center', 'center',grey,[100],[],[],[2]);
 Screen('Flip',window); KbStrokeWait;
 
 % Clear the screen
