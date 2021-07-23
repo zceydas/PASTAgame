@@ -54,6 +54,23 @@ while 1
     Screen('Flip', window);
     [keyIsDown,TimeStamp,keyCode] = KbCheck;
     if  ((GetSecs-Readit) - Recordall) > trialdeadline
+        if ideacount == 0
+            RT=GetSecs-Readit; % idea generation RT since the beginning of the first idea generation screen
+        else
+            RT=GetSecs-RecordStopped;
+        end
+        % organize results
+        Results{counter,1}=t;
+        Results{counter,2}=Category;
+        Results{counter,3}=Ex1;
+        Results{counter,4}=Ex2;
+        Results{counter,5}=Ex3;
+        Results{counter,6}=ReadTime;
+        Results{counter,7}=RT;
+        Results{counter,8}=0;
+        Results{counter,9}=Trialtype;
+        counter=counter+1;
+        
         break %
     end
     if keyIsDown
