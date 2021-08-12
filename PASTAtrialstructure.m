@@ -1,5 +1,12 @@
 function [Results,counter]=PASTAtrialstructure(design,counter,Results,audiochannel,mic_image,t,Category,Ex1,Ex2,Ex3,Trialtype)
 
+Screen('TextSize', design.window, design.fontsize);
+Screen('TextFont', design.window, 'Times');
+DrawFormattedText(design.window, '+', 'center',...
+    design.screenYpixels * 0.55, design.grey);
+Screen('Flip', design.window);
+WaitSecs(4+rand);
+
 ideacount=0;
 RT=0;
 % Draw text in the upper portion of the screen with the default font in red
