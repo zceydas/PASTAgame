@@ -13,7 +13,7 @@ design.subjectId=input('What is subject ID?');
 design.Session=input('What is study session? Test(1), ReTest(2): '); % this can be 1 or 2 (test and re-test)
 design.runEEG=input('Are you recording EEG? Yes(1), No(0): '); % this can be 1 or 2 (test and re-test)
 
-datafileName = ['ID_' num2str(design.subjectId) '_SessionNo' num2str(design.Session) '_Data Folder'];
+datafileName = ['PASTA_ID_' num2str(design.subjectId) '_SessionNo' num2str(design.Session) '_Data Folder'];
 if ~exist(datafileName, 'dir')
     mkdir(datafileName);
 end
