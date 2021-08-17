@@ -1,4 +1,4 @@
-function [Results,counter]=PASTAtrialstructure(design,counter,Results,audiochannel,mic_image,t,Category,Ex1,Ex2,Ex3,Trialtype)
+function [Results,counter]=PASTAtrialstructureKeyPress(design,counter,Results,audiochannel,mic_image,t,Category,Ex1,Ex2,Ex3,Trialtype)
 
 Screen('TextSize', design.window, design.fontsize);
 Screen('TextFont', design.window, 'Times');
@@ -44,7 +44,6 @@ end
 Screen('Flip', design.window); ReadStart=GetSecs; WaitSecs(0.2);
 KbStrokeWait; Readit=GetSecs; ReadTime=Readit-ReadStart;
 RecordTime=0; Recordall=0;
-triggered=0;
 
 while 1
     
@@ -56,19 +55,16 @@ while 1
     Screen('TextSize', design.window, design.fontsize);
     Screen('TextFont', design.window, 'Times');
     DrawFormattedText(design.window, '+', 'center',...
-        design.screenYpixels * 0.55, [0 1 0]);
+        design.screenYpixels * 0.55, design.grey);
     
     if contains(Trialtype,'Practice')
         Screen('TextSize', design.window, 35);
         Screen('TextFont', design.window, 'Times');
-        DrawFormattedText(design.window, '(Now try to come up with a new name when you see this green plus sign.)', 'center',...
+        DrawFormattedText(design.window, '(Now try to come up with a new name and press the space bar when ready to say it out loud.)', 'center',...
             design.screenYpixels * 0.90, design.grey);
     end
     Screen('Flip', design.window);
-    
-    %[keyIsDown,TimeStamp,keyCode] = KbCheck;
-    [triggered]=AutomaticTrigger(audiochannel,Readit,Recordall,design);
-
+    [keyIsDown,TimeStamp,keyCode] = KbCheck;
     if  ((GetSecs-Readit) - Recordall) > design.trialdeadline
         if ideacount == 0
             RT=GetSecs-Readit; % idea generation RT since the beginning of the first idea generation screen
@@ -85,11 +81,11 @@ while 1
         Results{counter,7}=RT;
         Results{counter,8}=0;
         Results{counter,9}=Trialtype;
-        counter=counter+1; 
-        break %        
+        counter=counter+1;
+        
+        break %
     end
-    
-    if triggered
+    if keyIsDown
         
         if ideacount == 0
             RT=GetSecs-Readit; % idea generation RT since the beginning of the first idea generation screen
@@ -102,23 +98,21 @@ while 1
         if contains(Trialtype,'Practice')
             Screen('TextSize', design.window, 35);
             Screen('TextFont', design.window, 'Times');
-            DrawFormattedText(design.window, '(Now say the name out loud as we record your voice.)', 'center',...
+            DrawFormattedText(design.window, '(Now say the name out loud as we record your voice.', 'center',...
+                design.screenYpixels * 0.85, design.grey);
+            DrawFormattedText(design.window, 'When ready to come up with another new name, press space bar again.)', 'center',...
                 design.screenYpixels * 0.90, design.grey);
-%             DrawFormattedText(design.window, 'When ready to come up with another new name, press space bar again.)', 'center',...
-%                 design.screenYpixels * 0.90, design.grey);
         end
         
         Screen('Flip', design.window); RecordStart=GetSecs;
         ideacount=ideacount+1;
         
-        %         PsychPortAudio('Start',audiochannel,1);
-        %         % we need to do the reverse of when we played a file
-        %         % get the audio OUT of the buffer and into a matrix
-        %         % then, save the matrix into a file
-        %         WaitSecs(5);
-        %         recordedaudio = PsychPortAudio('GetAudioData', audiochannel);
-        
-        [recordedaudio]=ListenToSilence(audiochannel);
+        PsychPortAudio('Start',audiochannel,1);
+        % we need to do the reverse of when we played a file
+        % get the audio OUT of the buffer and into a matrix
+        % then, save the matrix into a file
+        KbStrokeWait;
+        recordedaudio = PsychPortAudio('GetAudioData', audiochannel);
         % (at this point, since we've dumped things out of the buffer, we could
         % record another 10 seconds if we wanted to)
         PsychPortAudio('Stop',audiochannel); % stop the recording channel
@@ -147,12 +141,8 @@ while 1
         Results{counter,8}=RecordTime;
         Results{counter,9}=Trialtype;
         counter=counter+1;
+
     end
     
+    
 end
-
-
-
-
-
-
