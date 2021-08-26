@@ -1,11 +1,29 @@
 function [Results,counter]=PASTAtrialstructure(design,counter,Results,audiochannel,mic_image,t,Category,Ex1,Ex2,Ex3,Trialtype)
 
+%EEG event codes:
+fixationstart=100;
+fixationend=101;
+ideacode=102;
+lagtime=0.035;
+%%%%%%%%%%%%%%%%
+
 Screen('TextSize', design.window, design.fontsize);
 Screen('TextFont', design.window, 'Times');
 DrawFormattedText(design.window, '+', 'center',...
     design.screenYpixels * 0.55, design.grey);
+%Screen('FillRect', design.window, [255 255 255], [100 600 500 1000] )
+
 Screen('Flip', design.window);
+WaitSecs(lagtime)
+if design.runEEG
+    design.sp.sendTrigger(fixationstart)
+end
 WaitSecs(4+rand);
+
+WaitSecs(lagtime)
+if design.runEEG
+    design.sp.sendTrigger(fixationend)
+end
 
 ideacount=0;
 RT=0;
@@ -47,25 +65,28 @@ RecordTime=0; Recordall=0;
 triggered=0;
 
 while 1
-    
-    if design.runEEG
-        design.sp.sendTrigger(counter)
-    end
-    
+
     % idea generation
     Screen('TextSize', design.window, design.fontsize);
     Screen('TextFont', design.window, 'Times');
     DrawFormattedText(design.window, '+', 'center',...
         design.screenYpixels * 0.55, [0 1 0]);
-    
+ %   Screen('FillRect', design.window, [255 255 255], [100 600 500 1000] )
     if contains(Trialtype,'Practice')
         Screen('TextSize', design.window, 35);
         Screen('TextFont', design.window, 'Times');
         DrawFormattedText(design.window, '(Now try to come up with a new name when you see this green plus sign.)', 'center',...
             design.screenYpixels * 0.90, design.grey);
     end
-    Screen('Flip', design.window);
     
+
+    Screen('Flip', design.window);
+    WaitSecs(lagtime)
+    if design.runEEG
+        design.sp.sendTrigger(fixationstart)
+    end
+
+
     %[keyIsDown,TimeStamp,keyCode] = KbCheck;
     [triggered]=AutomaticTrigger(audiochannel,Readit,Recordall,design);
 
